@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
-    "debug:dev": "NODE_OPTIONS='--inspect-brk' next dev --turbo",
+    "debug:dev": "NODE_OPTIONS='--inspect' next dev --turbo",
+    "debug:brk": "NODE_OPTIONS='--inspect-brk' next dev --turbo",
     "build": "tsx lib/db/migrate && next build",
     "start": "next start",
     "lint": "next lint && biome lint --write --unsafe",
