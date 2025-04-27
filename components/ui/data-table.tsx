@@ -29,6 +29,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   filterColumn?: string
   filterPlaceholder?: string
+  defaultSort?: SortingState
 }
 
 export function DataTable<TData, TValue>({
@@ -36,8 +37,9 @@ export function DataTable<TData, TValue>({
   data,
   filterColumn,
   filterPlaceholder = "Filter...",
+  defaultSort = [],
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [sorting, setSorting] = React.useState<SortingState>(defaultSort)
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 
   const table = useReactTable({
@@ -52,6 +54,9 @@ export function DataTable<TData, TValue>({
     state: {
       sorting,
       columnFilters,
+    },
+    initialState: {
+      sorting: defaultSort,
     },
   })
 

@@ -20,6 +20,7 @@ export default async function InvoicesPage() {
         data={invoices} 
         filterColumn="invoiceNumber"
         filterPlaceholder="Filter by invoice number..."
+        defaultSort={[{ id: 'invoiceDate', desc: true }]}
       />
     </div>
   );
