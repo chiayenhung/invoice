@@ -30,6 +30,7 @@ interface DataTableProps<TData, TValue> {
   filterColumn?: string
   filterPlaceholder?: string
   defaultSort?: SortingState
+  isAdmin?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -38,13 +39,31 @@ export function DataTable<TData, TValue>({
   filterColumn,
   filterPlaceholder = "Filter...",
   defaultSort = [],
+  isAdmin = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>(defaultSort)
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [isEditMode, setIsEditMode] = React.useState(false)
+
+  React.useEffect(() => {
+    const editButton = document.getElementById('edit-mode-toggle');
+    if (editButton) {
+      const handleClick = () => {
+        setIsEditMode(prev => !prev);
+        editButton.classList.toggle('bg-primary');
+        editButton.classList.toggle('text-primary-foreground');
+      };
+      editButton.addEventListener('click', handleClick);
+      return () => editButton.removeEventListener('click', handleClick);
+    }
+  }, []);
 
   const table = useReactTable({
     data,
-    columns,
+    columns: columns.map(col => ({
+      ...col,
+      meta: { isEditMode, isAdmin },
+    })),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,

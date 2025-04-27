@@ -400,3 +400,27 @@ export async function saveInvoiceLines({
     throw error;
   }
 }
+
+export async function updateInvoice(
+  id: string,
+  data: {
+    invoiceNumber?: string;
+    customerName?: string;
+    vendorName?: string;
+    amount?: number;
+    invoiceDate?: Date;
+    dueDate?: Date;
+  }
+) {
+  try {
+    await db
+      .update(invoice)
+      .set(data)
+      .where(eq(invoice.id, id));
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating invoice:', error);
+    return { success: false, error: 'Failed to update invoice' };
+  }
+}
