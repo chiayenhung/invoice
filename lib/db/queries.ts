@@ -320,3 +320,15 @@ export async function updateChatVisiblityById({
     throw error;
   }
 }
+
+export async function getDocuments() {
+  try {
+    return await db
+      .select()
+      .from(document)
+      .orderBy(desc(document.createdAt));
+  } catch (error) {
+    console.error('Failed to get documents from database');
+    throw error;
+  }
+}

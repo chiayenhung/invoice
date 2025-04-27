@@ -1,7 +1,5 @@
 import { auth } from '@/app/(auth)/auth';
-import { db } from '@/lib/db';
-import { document } from '@/lib/db/schema';
-import { desc } from 'drizzle-orm';
+import { getDocuments } from '@/lib/db/queries';
 import { columns } from './columns';
 import { DataTable } from '@/components/ui/data-table';
 
@@ -12,10 +10,7 @@ export default async function DocumentsPage() {
     return <div>Please sign in to view documents</div>;
   }
 
-  const documents = await db
-    .select()
-    .from(document)
-    .orderBy(desc(document.createdAt));
+  const documents = await getDocuments();
 
   return (
     <div className="container mx-auto py-10">
