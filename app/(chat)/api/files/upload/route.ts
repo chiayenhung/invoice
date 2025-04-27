@@ -60,10 +60,22 @@ export async function POST(request: Request) {
       // Create data URL for immediate preview
       const dataURL = `data:${file.type};base64,${buffer.toString('base64')}`;
 
+      // Determine file type based on MIME type
+      let fileType: 'text' | 'image' | 'file' = 'file';
+      if (file.type.startsWith('image/')) {
+        fileType = 'image';
+      } else if (file.type === 'text/plain') {
+        fileType = 'text';
+      }
+
       const meta = await extractInvoiceMeta({
-        type: 'file',
+        type: fileType,
         data: buffer.toString('base64'),
       });
+
+      if (!meta.isInvoice) {
+        return NextResponse.json({ error: 'File is not an invoice' }, { status: 400 });
+      }
 
       // Save document with metadata
       const documentId = generateUUID();

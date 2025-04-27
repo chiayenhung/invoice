@@ -20,6 +20,8 @@ export const myProvider = customProvider({
     'title-model': openai('gpt-4o-mini'),
     'block-model': openai('gpt-4o-mini'),
     'pdf-model': anthropic('claude-3-5-sonnet-20240620'),
+    'vision-model': openai('gpt-4o-vision'),
+    'text-model': openai('gpt-4o'),
   },
   imageModels: {
     'small-model': openai.image('dall-e-2'),

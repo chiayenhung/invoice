@@ -89,9 +89,17 @@ export async function extractInvoiceMeta({
     };
   }
 
+  // Determine which model to use based on the file type
+  let modelName = 'pdf-model';
+  if (type === 'text') {
+    modelName = 'text-model';
+  }
+
+  let attachmentMessage = getAttachmentMessage(type, data);
+
   // For text content, we can process it directly
   const { object } = await generateObject({
-    model: myProvider.languageModel('pdf-model'),
+    model: myProvider.languageModel(modelName),
     schema: z.object({
       invoice: z.object({
         customerName: z.string({description: 'invoice customer name'}),
@@ -117,14 +125,37 @@ export async function extractInvoiceMeta({
             type: 'text',
             text: "Process this invoice",
           },
-          {
-            type: 'file',
-            data: data,
-            mimeType: 'application/pdf'
-          }
+          attachmentMessage,
         ]
       }
     ]
   });
   return object;
+}
+
+function getAttachmentMessage(type: 'image' | 'text' | 'file', data: string | FilePart["data"]) {
+  let mimeType = 'application/pdf';
+  if (type === 'image') {
+    mimeType = 'image/jpeg';
+  } else if (type === 'text') {
+    mimeType = 'text/plain';
+  }
+
+  const message = {
+    type,
+  }
+
+  if (type === 'file' || type === 'image') {
+    message.data = data;
+  }
+  
+  if (type === 'file') {
+    message.mimeType = mimeType;
+  } 
+
+  if (type === 'text') {
+    message.text = data;
+  }
+
+  return message;
 }
