@@ -270,7 +270,7 @@ export const columns: ColumnDef<Invoice>[] = [
       const { isEditMode, isAdmin } = column.columnDef.meta as { isEditMode: boolean; isAdmin: boolean };
       return (
         <EditableCell
-          value={invoice.invoiceDate}
+          value={new Date(invoice.invoiceDate)}
           type="date"
           onSave={async (value) => {
             await updateInvoice(invoice.id, { invoiceDate: value });
@@ -300,7 +300,7 @@ export const columns: ColumnDef<Invoice>[] = [
       const { isEditMode, isAdmin } = column.columnDef.meta as { isEditMode: boolean; isAdmin: boolean };
       return (
         <EditableCell
-          value={invoice.dueDate}
+          value={new Date(invoice.dueDate)}
           type="date"
           onSave={async (value) => {
             await updateInvoice(invoice.id, { dueDate: value });
@@ -326,7 +326,7 @@ export const columns: ColumnDef<Invoice>[] = [
       );
     },
     cell: ({ row }) => {
-      return format(row.original.createdAt, 'MMM d, yyyy');
+      return format(new Date(row.original.createdAt), 'MMM d, yyyy');
     },
   },
 ] 

@@ -97,8 +97,8 @@ export async function extractInvoiceMeta({
         customerName: z.string({description: 'invoice customer name'}),
         vendorName: z.string({description: 'invoice vendor name'}),
         invoiceNumber: z.string({description: 'invoice number'}),
-        invoiceDate: z.date({description: 'invoice create  date'}),
-        dueDate: z.date({description: 'invoice due date'}),
+        invoiceDate: z.string({description: 'invoice create date'}).transform((val) => new Date(val)),
+        dueDate: z.string({description: 'invoice due date'}).transform((val) => new Date(val)),
         amount: z.number({description: 'invoice total amount'}),
         lineItems: z.array(z.object({
           description: z.string({description: 'line item description'}),
@@ -107,7 +107,7 @@ export async function extractInvoiceMeta({
           amount: z.number({description: 'line item total amount'})
         }))
       }),
-      isInvoice: z.boolean({description: 'is this file invoice'}),
+      isInvoice: z.boolean({description: 'is this file invoice? if not, return false. we only want to process invoice files, not other types, e.g. receipts or statements etc.'}),
     }),
     messages: [
       {
