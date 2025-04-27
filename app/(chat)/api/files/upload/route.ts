@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/app/(auth)/auth';
+import { extractInvoiceMeta } from '../../../actions';
 
 // Use Blob instead of File since File is not available in Node.js environment
 const FileSchema = z.object({
@@ -10,7 +11,7 @@ const FileSchema = z.object({
       message: 'File size should be less than 5MB',
     })
     // Update the file type based on the kind of files you want to accept
-    .refine((file) => ['image/jpeg', 'image/png'].includes(file.type), {
+    .refine((file) => ['image/jpeg', 'image/png', 'application/pdf'].includes(file.type), {
       message: 'File type should be JPEG or PNG',
     }),
 });
@@ -56,6 +57,11 @@ export async function POST(request: Request) {
 
       // Create data URL for immediate preview
       const dataURL = `data:${file.type};base64,${buffer.toString('base64')}`;
+
+      const meta = await extractInvoiceMeta({
+        type: 'file',
+        data: buffer.toString('base64'),
+      })
 
       return NextResponse.json({
         url: dataURL,

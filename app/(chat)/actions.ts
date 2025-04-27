@@ -1,6 +1,6 @@
 'use server';
 
-import { generateText, type Message } from 'ai';
+import { generateText, generateObject, type Message, type FilePart } from 'ai';
 import { cookies } from 'next/headers';
 
 import {
@@ -10,6 +10,7 @@ import {
 } from '@/lib/db/queries';
 import type { VisibilityType } from '@/components/visibility-selector';
 import { myProvider } from '@/lib/ai/models';
+import { z } from 'zod';
 
 export async function saveChatModelAsCookie(model: string) {
   const cookieStore = await cookies();
@@ -21,6 +22,9 @@ export async function generateTitleFromUserMessage({
 }: {
   message: Message;
 }) {
+  if (process.env.MOCK === 'true') {
+    return 'mock title';
+  }
   const { text: title } = await generateText({
     model: myProvider.languageModel('title-model'),
     system: `\n
@@ -51,4 +55,79 @@ export async function updateChatVisibility({
   visibility: VisibilityType;
 }) {
   await updateChatVisiblityById({ chatId, visibility });
+}
+
+export async function extractInvoiceMeta({
+  data,
+  type,
+}: {
+  data: FilePart["data"];
+  type: 'text' | 'image' | 'file';
+}) {
+  // For PDF files, we need to extract text content first
+  // Since we can't directly process PDFs in the AI model
+  let textContent = '';
+  
+  // if (type === 'file') {
+  //   // In a real implementation, you would use a PDF parsing library here
+  //   // For now, we'll return a placeholder response
+  //   return {
+  //     invoice: {
+  //       customerName: "Example Customer",
+  //       vendorName: "Example Vendor",
+  //       invoiceNumber: "INV-12345",
+  //       invoiceDate: new Date(),
+  //       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+  //       amount: 999.99,
+  //       lineItems: [
+  //         {
+  //           description: "Example Item",
+  //           quantity: 1,
+  //           unitPrice: 999.99,
+  //           amount: 999.99
+  //         }
+  //       ]
+  //     },
+  //     isInvoice: true
+  //   };
+  // }
+
+  // For text content, we can process it directly
+  const { object } = await generateObject({
+    model: myProvider.languageModel('pdf-model'),
+    schema: z.object({
+      invoice: z.object({
+        customerName: z.string({description: 'invoice customer name'}),
+        vendorName: z.string({description: 'invoice vendor name'}),
+        invoiceNumber: z.string({description: 'invoice number'}),
+        invoiceDate: z.date({description: 'invoice create  date'}),
+        dueDate: z.date({description: 'invoice due date'}),
+        amount: z.number({description: 'invoice total amount'}),
+        lineItems: z.array(z.object({
+          description: z.string({description: 'line item description'}),
+          quantity: z.number({description: 'line item quantity'}),
+          unitPrice: z.number({description: 'line item unit price'}),
+          amount: z.number({description: 'line item total amount'})
+        }))
+      }),
+      isInvoice: z.boolean({description: 'is this file invoice'}),
+    }),
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: "Process this invoice",
+          },
+          {
+            type: 'file',
+            data: data,
+            mimeType: 'application/pdf'
+          }
+        ]
+      }
+    ]
+  });
+  return object;
 }

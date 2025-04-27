@@ -18,6 +18,7 @@ export const myProvider = customProvider({
     }),
     'title-model': openai('gpt-4o-mini'),
     'block-model': openai('gpt-4o-mini'),
+    'pdf-model': fireworks('accounts/fireworks/models/deepseek-r1'),
   },
   imageModels: {
     'small-model': openai.image('dall-e-2'),
