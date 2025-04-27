@@ -47,13 +47,13 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                     className="p-2 h-fit"
                     onClick={() => {
                       setOpenMobile(false);
-                      router.push('/documents');
+                      router.push('/invoices');
                     }}
                   >
                     <FileIcon />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent align="end">Documents</TooltipContent>
+                <TooltipContent align="end">Invoices</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>

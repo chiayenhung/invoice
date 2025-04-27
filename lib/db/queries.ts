@@ -11,6 +11,10 @@ import {
   type Message,
   message,
   vote,
+  invoice,
+  type Invoice,
+  invoiceLine,
+  type InvoiceLine,
 } from './schema';
 import type { BlockKind } from '@/components/block';
 
@@ -329,6 +333,70 @@ export async function getDocuments() {
       .orderBy(desc(document.createdAt));
   } catch (error) {
     console.error('Failed to get documents from database');
+    throw error;
+  }
+}
+
+export async function getInvoices() {
+  try {
+    return await db
+      .select()
+      .from(invoice)
+      .orderBy(desc(invoice.createdAt));
+  } catch (error) {
+    console.error('Failed to get invoices from database');
+    throw error;
+  }
+}
+
+export async function saveInvoice({
+  id,
+  customerName,
+  vendorName,
+  invoiceNumber,
+  invoiceDate,
+  dueDate,
+  amount,
+}: {
+  id: string;
+  customerName: string;
+  vendorName: string;
+  invoiceNumber: string;
+  invoiceDate: Date;
+  dueDate: Date;
+  amount: number;
+}) {
+  try {
+    return await db.insert(invoice).values({
+      id,
+      customerName,
+      vendorName,
+      invoiceNumber,
+      invoiceDate,
+      dueDate,
+      amount,
+      createdAt: new Date(),
+    });
+  } catch (error) {
+    console.error('Failed to save invoice in database');
+    throw error;
+  }
+}
+
+export async function saveInvoiceLines({
+  invoiceLines,
+}: {
+  invoiceLines: Array<Omit<InvoiceLine, 'createdAt'>>;
+}) {
+  try {
+    const linesWithTimestamp = invoiceLines.map(line => ({
+      ...line,
+      createdAt: new Date(),
+    }));
+    
+    return await db.insert(invoiceLine).values(linesWithTimestamp);
+  } catch (error) {
+    console.error('Failed to save invoice lines in database');
     throw error;
   }
 }

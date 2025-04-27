@@ -3,11 +3,11 @@ import { getInvoices } from '@/lib/db/queries';
 import { columns } from './columns';
 import { DataTable } from '@/components/ui/data-table';
 
-export default async function DocumentsPage() {
+export default async function InvoicesPage() {
   const session = await auth();
 
   if (!session?.user) {
-    return <div>Please sign in to view documents</div>;
+    return <div>Please sign in to view invoices</div>;
   }
 
   const invoices = await getInvoices();

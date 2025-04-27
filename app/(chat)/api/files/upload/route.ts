@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/app/(auth)/auth';
 import { extractInvoiceMeta } from '../../../actions';
-import { saveDocument } from '@/lib/db/queries';
+import { saveDocument, saveInvoice, saveInvoiceLines } from '@/lib/db/queries';
 import { generateUUID } from '@/lib/utils';
 
 // Use Blob instead of File since File is not available in Node.js environment
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       const meta = await extractInvoiceMeta({
         type: 'file',
         data: buffer.toString('base64'),
-      })
+      });
 
       // Save document with metadata
       const documentId = generateUUID();
@@ -75,16 +75,49 @@ export async function POST(request: Request) {
         userId: session.user.id,
       });
 
+      // If the file is an invoice, save it to the invoice tables
+      if (meta.isInvoice && meta.invoice) {
+        const invoiceId = generateUUID();
+        
+        // Save the invoice
+        await saveInvoice({
+          id: invoiceId,
+          customerName: meta.invoice.customerName,
+          vendorName: meta.invoice.vendorName,
+          invoiceNumber: meta.invoice.invoiceNumber,
+          invoiceDate: meta.invoice.invoiceDate,
+          dueDate: meta.invoice.dueDate,
+          amount: meta.invoice.amount,
+        });
+
+        // Save the invoice line items
+        if (meta.invoice.lineItems && meta.invoice.lineItems.length > 0) {
+          const invoiceLines = meta.invoice.lineItems.map(item => ({
+            id: generateUUID(),
+            invoiceId,
+            description: item.description,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            amount: item.amount,
+          }));
+
+          await saveInvoiceLines({ invoiceLines });
+        }
+      }
+
       return NextResponse.json({
         url: dataURL,
         pathname: `/uploads/${uniqueFilename}`,
         contentType: file.type,
         documentId,
+        isInvoice: meta.isInvoice,
       });
     } catch (error) {
+      console.error('Upload error:', error);
       return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
     }
   } catch (error) {
+    console.error('Request processing error:', error);
     return NextResponse.json(
       { error: 'Failed to process request' },
       { status: 500 },
