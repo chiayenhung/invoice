@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/app/(auth)/auth';
 import { extractInvoiceMeta } from '../../../actions';
+import { saveDocument } from '@/lib/db/queries';
+import { generateUUID } from '@/lib/utils';
 
 // Use Blob instead of File since File is not available in Node.js environment
 const FileSchema = z.object({
@@ -63,10 +65,21 @@ export async function POST(request: Request) {
         data: buffer.toString('base64'),
       })
 
+      // Save document with metadata
+      const documentId = generateUUID();
+      await saveDocument({
+        id: documentId,
+        title: filename,
+        kind: 'text',
+        content: JSON.stringify(meta),
+        userId: session.user.id,
+      });
+
       return NextResponse.json({
         url: dataURL,
         pathname: `/uploads/${uniqueFilename}`,
         contentType: file.type,
+        documentId,
       });
     } catch (error) {
       return NextResponse.json({ error: 'Upload failed' }, { status: 500 });

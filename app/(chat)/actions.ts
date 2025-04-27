@@ -64,33 +64,30 @@ export async function extractInvoiceMeta({
   data: FilePart["data"];
   type: 'text' | 'image' | 'file';
 }) {
-  // For PDF files, we need to extract text content first
-  // Since we can't directly process PDFs in the AI model
-  let textContent = '';
   
-  // if (type === 'file') {
-  //   // In a real implementation, you would use a PDF parsing library here
-  //   // For now, we'll return a placeholder response
-  //   return {
-  //     invoice: {
-  //       customerName: "Example Customer",
-  //       vendorName: "Example Vendor",
-  //       invoiceNumber: "INV-12345",
-  //       invoiceDate: new Date(),
-  //       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-  //       amount: 999.99,
-  //       lineItems: [
-  //         {
-  //           description: "Example Item",
-  //           quantity: 1,
-  //           unitPrice: 999.99,
-  //           amount: 999.99
-  //         }
-  //       ]
-  //     },
-  //     isInvoice: true
-  //   };
-  // }
+  if (process.env.MOCK === 'true') {
+    // In a real implementation, you would use a PDF parsing library here
+    // For now, we'll return a placeholder response
+    return {
+      invoice: {
+        customerName: "Example Customer",
+        vendorName: "Example Vendor",
+        invoiceNumber: "INV-12345",
+        invoiceDate: new Date(),
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        amount: 999.99,
+        lineItems: [
+          {
+            description: "Example Item",
+            quantity: 1,
+            unitPrice: 999.99,
+            amount: 999.99
+          }
+        ]
+      },
+      isInvoice: true
+    };
+  }
 
   // For text content, we can process it directly
   const { object } = await generateObject({
