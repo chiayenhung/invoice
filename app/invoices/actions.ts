@@ -12,6 +12,7 @@ export async function updateInvoice(
     amount?: number;
     invoiceDate?: Date;
     dueDate?: Date;
+    fileUrl?: string;
   }
 ) {
   const result = await updateInvoiceQuery(id, data);

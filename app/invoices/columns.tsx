@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Invoice } from "@/lib/db/schema"
 import { format } from "date-fns"
-import { ArrowUpDown, Check, X, Pencil } from "lucide-react"
+import { ArrowUpDown, Check, X, Pencil, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useRef, useEffect } from "react"
 import { Input } from "@/components/ui/input"
@@ -327,6 +327,27 @@ export const columns: ColumnDef<Invoice>[] = [
     },
     cell: ({ row }) => {
       return format(new Date(row.original.createdAt), 'MMM d, yyyy');
+    },
+  },
+  {
+    accessorKey: "fileUrl",
+    header: "File",
+    cell: ({ row }) => {
+      const fileUrl = row.original.fileUrl;
+      if (!fileUrl) {
+        return <span className="text-gray-400">No file</span>;
+      }
+      return (
+        <a 
+          href={fileUrl} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 text-blue-600 hover:underline"
+        >
+          <FileText className="h-4 w-4" />
+          <span>View</span>
+        </a>
+      );
     },
   },
 ] 

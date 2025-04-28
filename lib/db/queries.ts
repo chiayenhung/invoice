@@ -357,6 +357,7 @@ export async function saveInvoice({
   invoiceDate,
   dueDate,
   amount,
+  fileUrl,
 }: {
   id: string;
   customerName: string;
@@ -365,6 +366,7 @@ export async function saveInvoice({
   invoiceDate: Date;
   dueDate: Date;
   amount: number;
+  fileUrl?: string;
 }) {
   try {
     return await db.insert(invoice).values({
@@ -375,6 +377,7 @@ export async function saveInvoice({
       invoiceDate,
       dueDate,
       amount,
+      fileUrl,
       createdAt: new Date(),
     });
   } catch (error) {
@@ -410,6 +413,7 @@ export async function updateInvoice(
     amount?: number;
     invoiceDate?: Date;
     dueDate?: Date;
+    fileUrl?: string;
   }
 ) {
   try {

@@ -4,6 +4,8 @@ import { auth } from '@/app/(auth)/auth';
 import { extractInvoiceMeta } from '../../../actions';
 import { saveDocument, saveInvoice, saveInvoiceLines } from '@/lib/db/queries';
 import { generateUUID } from '@/lib/utils';
+import fs from 'fs';
+import path from 'path';
 
 // Use Blob instead of File since File is not available in Node.js environment
 const FileSchema = z.object({
@@ -56,6 +58,16 @@ export async function POST(request: Request) {
       // Generate unique filename with timestamp
       const timestamp = Date.now();
       const uniqueFilename = `${timestamp}-${filename}`;
+      
+      // Create uploads directory if it doesn't exist
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+      
+      // Save file to the uploads directory
+      const filePath = path.join(uploadsDir, uniqueFilename);
+      fs.writeFileSync(filePath, buffer);
 
       // Create data URL for immediate preview
       const dataURL = `data:${file.type};base64,${buffer.toString('base64')}`;
@@ -91,7 +103,7 @@ export async function POST(request: Request) {
       if (meta.isInvoice && meta.invoice) {
         const invoiceId = generateUUID();
         
-        // Save the invoice
+        // Save the invoice with file URL
         await saveInvoice({
           id: invoiceId,
           customerName: meta.invoice.customerName,
@@ -100,6 +112,7 @@ export async function POST(request: Request) {
           invoiceDate: meta.invoice.invoiceDate,
           dueDate: meta.invoice.dueDate,
           amount: meta.invoice.amount,
+          fileUrl: `/uploads/${uniqueFilename}`,
         });
 
         // Save the invoice line items

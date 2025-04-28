@@ -108,6 +108,7 @@ export const invoice = sqliteTable('Invoice', {
   invoiceDate: integer('invoiceDate', { mode: 'timestamp' }).notNull(),
   dueDate: integer('dueDate', { mode: 'timestamp' }).notNull(),
   amount: integer('amount').notNull(),
+  fileUrl: text('fileUrl'),
   createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
 });
 

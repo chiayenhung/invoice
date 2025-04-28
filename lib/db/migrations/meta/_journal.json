@@ -15,6 +15,13 @@
       "when": 1745775356881,
       "tag": "0001_luxuriant_shape",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1745799924429,
+      "tag": "0002_steep_living_lightning",
+      "breakpoints": true
     }
   ]
 }

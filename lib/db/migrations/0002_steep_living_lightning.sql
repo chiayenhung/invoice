@@ -1,0 +1,1 @@
+ALTER TABLE `Invoice` ADD `fileUrl` text;
