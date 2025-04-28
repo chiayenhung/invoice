@@ -120,13 +120,8 @@ export async function extractInvoiceMeta({
     messages: [
       {
         role: 'user',
-        content: [
-          {
-            type: 'text',
-            text: "Process this invoice",
-          },
-          attachmentMessage,
-        ]
+        content: "Process this invoice",
+        experimental_attachments: [attachmentMessage]
       }
     ]
   });
@@ -141,21 +136,13 @@ function getAttachmentMessage(type: 'image' | 'text' | 'file', data: string | Fi
     mimeType = 'text/plain';
   }
 
-  const message = {
+  // Create a data URL for the attachment
+  const dataURL = `data:${mimeType};base64,${data}`;
+
+  return {
     type,
-  }
-
-  if (type === 'file' || type === 'image') {
-    message.data = data;
-  }
-  
-  if (type === 'file') {
-    message.mimeType = mimeType;
-  } 
-
-  if (type === 'text') {
-    message.text = data;
-  }
-
-  return message;
+    url: dataURL,
+    name: `uploaded-${type}`,
+    contentType: mimeType
+  };
 }
